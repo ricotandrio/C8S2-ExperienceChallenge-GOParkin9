@@ -302,7 +302,7 @@ struct GOParkin9WidgetEntryMediumView: View {
                             .fontWeight(.medium)
                             .foregroundColor(.white)
                     }
-                    .padding(.vertical, 10)
+                    .padding(.vertical, 8)
                     .frame(maxWidth: .infinity)
                 }
                 .background(Color.blue)
