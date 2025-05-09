@@ -8,12 +8,6 @@
 import SwiftUI
 import CoreLocation
 import CoreLocationUI
-
-extension CLLocationCoordinate2D: @retroactive Equatable {
-    public static func == (lhs: CLLocationCoordinate2D, rhs: CLLocationCoordinate2D) -> Bool {
-        lhs.latitude == rhs.latitude && lhs.longitude == rhs.longitude
-    }
-}
  
 struct DetailRecordInactive: View {
     
@@ -34,13 +28,6 @@ struct DetailRecordInactive: View {
                 .scaledToFit()
                 .frame(width: 100, height: 100)
                 .foregroundColor(Color.gray)
-            
-//            Text("There's no active parking record. Try to park your vehicle.")
-//                .padding(.horizontal, 30)
-//                .font(.subheadline)
-//                .fontWeight(.bold)
-//                .opacity(0.6)
-//                .multilineTextAlignment(.center)
             
             Spacer()
                 .frame(height: 80)

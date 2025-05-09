@@ -16,3 +16,11 @@ struct ConfigurationAppIntent: WidgetConfigurationIntent {
     @Parameter(title: "Favorite Emoji", default: "😃")
     var favoriteEmoji: String
 }
+
+struct OpenAddRecordIntent: AppIntent {
+    static var title: LocalizedStringResource = "Open Add Record"
+
+    func perform() async throws -> some IntentResult {
+        return .result()
+    }
+}

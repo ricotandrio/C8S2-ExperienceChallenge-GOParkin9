@@ -9,43 +9,16 @@ import SwiftUI
 import SwiftData
 
 struct DetailRecordActive: View {
-    @Binding var isPreviewOpen: Bool
-    @Binding var isCompassOpen: Bool
-    @Binding var selectedImageIndex: Int
-    @State var dateTime: Date
-    @State var parkingRecord: ParkingRecord
-    @Environment(\.modelContext) var context
-    
-    @Binding var isComplete: Bool
+    @ObservedObject var detailRecordVM: DetailRecordViewModel
     
     var body: some View {
-        //        Text(String(describing: parkingRecord.images))
         
-        if parkingRecord.images.isEmpty {
-            Text("There's no image")
-                .foregroundColor(.red)
-                .font(.headline)
-                .frame(maxWidth: .infinity, alignment: .center)
-                .padding()
-        } else {
-            
-            TabView(selection: $selectedImageIndex) {
-                ForEach(0..<parkingRecord.images.count, id: \.self) { index in
-                    Image(uiImage: parkingRecord.images[index].getImage())
-                        .resizable()
-                        .scaledToFill()
-                        .frame(maxHeight: 250)
-                        .clipped()
-                        .cornerRadius(10)
-                        .tag(index)
-                        .onTapGesture {
-                            isPreviewOpen = true
-                        }
-                }
-            }
-            .tabViewStyle(PageTabViewStyle(indexDisplayMode: .automatic))
-            .frame(height: 250)
-        }
+        ParkingRecordImageView(
+            parkingRecordImage: detailRecordVM.activeParkingRecord!.images,
+            isPreviewOpen: $detailRecordVM.isPreviewOpen,
+            selectedImageIndex: $detailRecordVM.selectedImageIndex
+        )
+        
         Spacer()
             .frame(height: 20)
     
@@ -66,7 +39,7 @@ struct DetailRecordActive: View {
                         
                     }
                     
-                    Text(dateTime, format: .dateTime.day().month().year())
+                    Text(detailRecordVM.activeParkingRecord!.createdAt, format: .dateTime.day().month().year())
                         .font(.subheadline)
                         .fontWeight(.medium)
                 }
@@ -85,7 +58,7 @@ struct DetailRecordActive: View {
                         
                     }
                     
-                    Text(dateTime, format: .dateTime.hour().minute())
+                    Text(detailRecordVM.activeParkingRecord!.createdAt, format: .dateTime.hour().minute())
                         .font(.subheadline)
                         .fontWeight(.medium)
                 }
@@ -111,7 +84,7 @@ struct DetailRecordActive: View {
                 
             }
             
-            Text("GOP 9, \(parkingRecord.floor)")
+            Text("GOP 9, \(detailRecordVM.activeParkingRecord!.floor)")
                 .font(.subheadline)
                 .fontWeight(.medium)
         }
@@ -121,8 +94,7 @@ struct DetailRecordActive: View {
         
         HStack(spacing: 16) {
             Button {
-                print("Navigate")
-                isCompassOpen.toggle()
+                detailRecordVM.isCompassOpen.toggle()
             } label: {
                 HStack {
                     Image(systemName: "figure.walk")
@@ -143,7 +115,7 @@ struct DetailRecordActive: View {
             .frame(maxWidth: .infinity)
             
             Button {
-                isComplete.toggle()
+                detailRecordVM.isComplete.toggle()
             } label: {
                 HStack {
                     Image(systemName: "car")
