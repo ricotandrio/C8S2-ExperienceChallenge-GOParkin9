@@ -7,6 +7,7 @@
 
 import WidgetKit
 import SwiftUI
+import SwiftData
 
 struct Provider: AppIntentTimelineProvider {
     func placeholder(in context: Context) -> SimpleEntry {
@@ -44,19 +45,23 @@ struct SimpleEntry: TimelineEntry {
 struct GOParkin9WidgetEntrySmallView: View {
     var entry: Provider.Entry
     
-    let condition = false
+    var parkingRecord: ParkingRecord?
     
     var body: some View {
-        if condition {
+        if parkingRecord != nil {
             VStack(alignment: .leading) {
+                Spacer()
+                    .frame(height: 20)
+                
                 HStack {
                     Image(systemName: "clock")
                         .resizable()
                         .scaledToFit()
-                        .frame(width: 15, height: 15)
+                        .frame(width: 12, height: 12)
                     
-                    Text("13:00")
+                    Text("\(parkingRecord?.createdAt.formatted(date: .omitted, time: .shortened) ?? "N/A")")
                         .font(.system(size: 12))
+                        .fontWeight(.medium)
                         .foregroundColor(.primary)
                 }
                 
@@ -66,12 +71,14 @@ struct GOParkin9WidgetEntrySmallView: View {
                     Text("GOP9")
                         .font(.system(size: 18))
                         .foregroundColor(.primary)
-                        .fontWeight(.medium)
+                        .fontWeight(.bold)
                     
-                    Text("Basement 1")
+                    Text("\(parkingRecord?.floor ?? "N/A")")
                         .font(.system(size: 12))
+                        .fontWeight(.medium)
                         .foregroundColor(.secondary)
                 }
+                .padding(.bottom, 5)
                 
                 Button {
                     
@@ -92,6 +99,10 @@ struct GOParkin9WidgetEntrySmallView: View {
                 .padding(.vertical, 3)
                 .background(Color.blue)
                 .cornerRadius(10)
+                .shadow(color: Color.black.opacity(0.25), radius: 20, x: 0, y: 4)
+                
+                Spacer()
+                    .frame(height: 15)
                 
             }
         } else {
@@ -103,8 +114,15 @@ struct GOParkin9WidgetEntrySmallView: View {
                     .resizable()
                     .scaledToFit()
                     .frame(width: 50, height: 50)
+                    .padding(.bottom, 2)
                 
-                Spacer()
+                
+                Text("Add one to track your parking.")
+                    .font(.system(size: 12))
+                    .fontWeight(.medium)
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.bottom, 5)
                 
                 Button {
                     
@@ -114,9 +132,10 @@ struct GOParkin9WidgetEntrySmallView: View {
                             .resizable()
                             .scaledToFit()
                             .frame(width: 10, height: 10)
-                        
+
                         Text("Add Record")
-                            .font(.system(size: 10))
+                            .font(.system(size: 12))
+                            .fontWeight(.medium)
                             .foregroundColor(.white)
                     }
                 }
@@ -125,6 +144,10 @@ struct GOParkin9WidgetEntrySmallView: View {
                 .padding(.vertical, 3)
                 .background(Color.blue)
                 .cornerRadius(10)
+                .shadow(color: Color.black.opacity(0.25), radius: 20, x: 0, y: 4)
+                
+                Spacer()
+                    .frame(height: 15)
                 
             }
         }
@@ -134,18 +157,27 @@ struct GOParkin9WidgetEntrySmallView: View {
 struct GOParkin9WidgetEntryMediumView: View {
     var entry: Provider.Entry
     
-    let condition = true
+    var parkingRecord: ParkingRecord?
     
     var body: some View {
-        if condition {
+        if parkingRecord != nil {
             ZStack {
                 
-                Image("Image")
-                    .resizable()
-                    .scaledToFill()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .clipped()
-                    .overlay(Color.black.opacity(0.5))
+                if parkingRecord!.images.isEmpty {
+                    Image("Image")
+                        .resizable()
+                        .scaledToFill()
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .clipped()
+                        .overlay(Color.black.opacity(0.5))
+                } else {
+                    Image(uiImage: parkingRecord!.images[0].getImage())
+                        .resizable()
+                        .scaledToFill()
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .clipped()
+                        .overlay(Color.black.opacity(0.5))
+                }
                 
                 HStack(alignment: .center) {
                     
@@ -158,7 +190,7 @@ struct GOParkin9WidgetEntryMediumView: View {
                                 .foregroundColor(.white)
                                 .frame(width: 15, height: 15)
                             
-                            Text("13:00")
+                            Text("\(parkingRecord?.createdAt.formatted(date: .omitted, time: .shortened) ?? "N/A")")
                                 .font(.system(size: 12))
                                 .foregroundColor(.white)
                                 .fontWeight(.medium)
@@ -172,7 +204,7 @@ struct GOParkin9WidgetEntryMediumView: View {
                                 .foregroundColor(.white)
                                 .fontWeight(.semibold)
                             
-                            Text("Basement 1")
+                            Text("\(parkingRecord?.floor ?? "N/A")")
                                 .font(.system(size: 12))
                                 .opacity(0.8)
                                 .fontWeight(.medium)
@@ -185,7 +217,6 @@ struct GOParkin9WidgetEntryMediumView: View {
                     Spacer()
                     
                     VStack {
-                        
                         Button {
                             
                         } label: {
@@ -193,6 +224,7 @@ struct GOParkin9WidgetEntryMediumView: View {
                                 Image(systemName: "figure.walk")
                                     .resizable()
                                     .scaledToFit()
+                                    .foregroundStyle(.white)
                                     .frame(width: 20, height: 20)
                                 
                                 Text("Navigate")
@@ -200,13 +232,13 @@ struct GOParkin9WidgetEntryMediumView: View {
                                     .fontWeight(.medium)
                                     .foregroundColor(.white)
                             }
+                            .padding(.vertical, 10)
+                            .frame(maxWidth: .infinity)
                         }
-                        .frame(width: 130, height: 50)
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 3)
+                        .frame(width: UIScreen.main.bounds.width / 2.5)
                         .background(Color.blue)
                         .cornerRadius(10)
+                        .shadow(color: Color.black.opacity(0.25), radius: 20, x: 0, y: 4)
                         
                         Spacer()
                         
@@ -217,6 +249,7 @@ struct GOParkin9WidgetEntryMediumView: View {
                                 Image(systemName: "car")
                                     .resizable()
                                     .scaledToFit()
+                                    .foregroundStyle(.white)
                                     .frame(width: 20, height: 20)
                                 
                                 Text("Complete")
@@ -224,66 +257,61 @@ struct GOParkin9WidgetEntryMediumView: View {
                                     .fontWeight(.medium)
                                     .foregroundColor(.white)
                             }
+                            .padding(.vertical, 10)
+                            .frame(maxWidth: .infinity)
                         }
-                        .frame(width: 130, height: 50)
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 3)
+                        .frame(width: UIScreen.main.bounds.width / 2.5)
                         .background(Color.green)
                         .cornerRadius(10)
+                        .shadow(color: Color.black.opacity(0.25), radius: 20, x: 0, y: 4)
                     }
                 }
                 .padding()
                 .frame(width: 329, height: 155)
             }
         } else {
-            HStack(alignment: .center) {
+            
+            VStack(alignment: .leading) {
                 
-                VStack(alignment: .leading) {
-                    
-                    Spacer()
-                    
-                    Text("No Record")
-                        .font(.system(size: 18))
-                        .foregroundColor(.primary)
-                        .fontWeight(.medium)
-                    
-                    Text("Try adding a new record")
-                        .font(.system(size: 12))
-                        .foregroundColor(.secondary)
-                    
-                }
-                .padding(.horizontal, 5)
-                .padding(.vertical, 8)
+                Text("No Active Parking Yet")
+                    .font(.system(size: 18))
+                    .foregroundColor(.primary)
+                    .fontWeight(.semibold)
+                
+                Text("Add one to track your parking.")
+                    .font(.system(size: 14))
+                    .foregroundColor(.secondary)
+                    .fontWeight(.medium)
                 
                 Spacer()
-
+                
+                
+                    
                 Button {
                     
                 } label: {
-                    VStack {
+                    HStack {
                         Image(systemName: "plus")
                             .resizable()
                             .scaledToFit()
-                            .frame(width: 35, height: 35)
-                        
-                        Spacer()
-                            .frame(height: 15)
-                        
+                            .foregroundColor(.white)
+                            .frame(width: 14, height: 14)
+
                         Text("Add Record")
                             .font(.system(size: 14))
                             .fontWeight(.medium)
                             .foregroundColor(.white)
                     }
+                    .padding(.vertical, 10)
+                    .frame(maxWidth: .infinity)
                 }
-                .frame(maxHeight: .infinity)
-                .aspectRatio(1, contentMode: .fit)
-                .foregroundColor(.white)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 3)
                 .background(Color.blue)
-                .cornerRadius(10)
+                .cornerRadius(15)
+                .shadow(color: Color.black.opacity(0.25), radius: 20, x: 0, y: 4)
+                
             }
+            .padding()
+            .frame(width: 329, height: 155, alignment: .leading)
         }
     }
 }
@@ -292,14 +320,20 @@ struct GOParkin9WidgetEntryView : View {
     var entry: Provider.Entry
     @Environment(\.widgetFamily) var family
     
+    @Query(filter: #Predicate<ParkingRecord>{p in p.isHistory == false}) var parkingRecords: [ParkingRecord]
+
+    var firstParkingRecord: ParkingRecord? {
+        parkingRecords.first
+    }
+
     var body: some View {
         switch family {
         case .systemSmall:
-            GOParkin9WidgetEntrySmallView(entry: entry)
+            GOParkin9WidgetEntrySmallView(entry: entry, parkingRecord: firstParkingRecord ?? nil)
         case .systemMedium:
-            GOParkin9WidgetEntryMediumView(entry: entry)
+            GOParkin9WidgetEntryMediumView(entry: entry, parkingRecord: firstParkingRecord ?? nil)
         default:
-            GOParkin9WidgetEntryMediumView(entry: entry)
+            GOParkin9WidgetEntryMediumView(entry: entry, parkingRecord: firstParkingRecord ?? nil)
         }
     }
 }
@@ -311,6 +345,7 @@ struct GOParkin9Widget: Widget {
         AppIntentConfiguration(kind: kind, intent: ConfigurationAppIntent.self, provider: Provider()) { entry in
             GOParkin9WidgetEntryView(entry: entry)
                 .containerBackground(.fill.tertiary, for: .widget)
+                .modelContainer(for: [ParkingRecord.self])
         }
         .contentMarginsDisabled()
         .configurationDisplayName("GOParkin9 Widget")
@@ -325,17 +360,10 @@ extension ConfigurationAppIntent {
         intent.favoriteEmoji = "😀"
         return intent
     }
-    
-    fileprivate static var starEyes: ConfigurationAppIntent {
-        let intent = ConfigurationAppIntent()
-        intent.favoriteEmoji = "🤩"
-        return intent
-    }
 }
 
 #Preview(as: .systemMedium) {
     GOParkin9Widget()
 } timeline: {
     SimpleEntry(date: .now, configuration: .smiley)
-    SimpleEntry(date: .now, configuration: .starEyes)
 }

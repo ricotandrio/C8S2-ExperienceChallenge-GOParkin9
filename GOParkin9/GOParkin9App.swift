@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import WidgetKit
 
 @main
 struct GOParkin9App: App {
@@ -47,6 +48,9 @@ struct GOParkin9App: App {
                     .fullScreenCover(isPresented: $openWelcomeView) {
 
                         WelcomeScreenView()
+                    }
+                    .onAppear() {
+                        WidgetCenter.shared.reloadAllTimelines()
                     }
             }
             //        .modelContainer(for: [ParkingRecord.self])
