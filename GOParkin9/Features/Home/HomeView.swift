@@ -15,10 +15,8 @@ struct HomeView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
                     NavigationList()
-
-                    DetailRecord(
-                        detailRecordVM: DetailRecordViewModel()
-                    )
+                    
+                    DetailRecord(detailRecordVM: DetailRecordViewModel())
                 }
                 .navigationTitle("GOParkin9")
                 .padding()

@@ -134,6 +134,12 @@ struct DetailRecordActive: View {
             .foregroundStyle(Color.white)
             .cornerRadius(10)
             .frame(maxWidth: .infinity)
+            .onOpenURL { url in
+                if url == URL(string: AppLinks.completeRecordUrl) {
+                    detailRecordVM.isComplete = true
+                }
+            }
         }
     }
+    
 }

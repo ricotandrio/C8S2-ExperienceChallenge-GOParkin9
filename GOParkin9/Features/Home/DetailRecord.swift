@@ -10,24 +10,14 @@ import SwiftData
 
 struct DetailRecord: View {
 
-    @ObservedObject private var detailRecordVM: DetailRecordViewModel
-
-    init(detailRecordVM: DetailRecordViewModel) {
-        self.detailRecordVM = detailRecordVM
-    }
+    @StateObject var detailRecordVM: DetailRecordViewModel
     
     var body: some View {
         VStack(alignment: .leading) {
             Section {
                 if detailRecordVM.activeParkingRecord != nil {
                     DetailRecordActive(
-//                        isPreviewOpen: $detailRecordVM.isPreviewOpen,
-//                        isCompassOpen: $detailRecordVM.isCompassOpen,
-//                        selectedImageIndex: $detailRecordVM.selectedImageIndex,
-//                        dateTime: detailRecordVM.activeParkingRecord.createdAt,
-//                        parkingRecord: detailRecordVM.activeParkingRecord,
-//                        isComplete: $detailRecordVM.isComplete,
-                        detailRecordVM: detailRecordVM   
+                        detailRecordVM: detailRecordVM
                     )
                 } else {
                     DetailRecordInactive()
@@ -81,6 +71,11 @@ struct DetailRecord: View {
             }
             .onAppear() {
                 detailRecordVM.synchronize()
+            }
+        }
+        .onOpenURL { url in
+            if url == URL(string: AppLinks.viewCompassUrl) {
+                detailRecordVM.isCompassOpen = true
             }
         }
     }

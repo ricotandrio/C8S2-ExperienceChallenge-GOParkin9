@@ -31,10 +31,6 @@ struct Provider: AppIntentTimelineProvider {
 
         return Timeline(entries: entries, policy: .atEnd)
     }
-
-//    func relevances() async -> WidgetRelevances<ConfigurationAppIntent> {
-//        // Generate a list containing the contexts this widget is relevant in.
-//    }
 }
 
 struct SimpleEntry: TimelineEntry {
@@ -81,7 +77,6 @@ struct GOParkin9WidgetEntrySmallView: View {
                 .padding(.bottom, 5)
                 
                 Button {
-                    
                 } label: {
                     HStack {
                         Image(systemName: "figure.walk")
@@ -100,6 +95,7 @@ struct GOParkin9WidgetEntrySmallView: View {
                 .background(Color.blue)
                 .cornerRadius(10)
                 .shadow(color: Color.black.opacity(0.25), radius: 20, x: 0, y: 4)
+                .widgetURL(URL(string: AppLinks.viewCompassUrl))
                 
                 Spacer()
                     .frame(height: 15)
@@ -125,7 +121,6 @@ struct GOParkin9WidgetEntrySmallView: View {
                     .padding(.bottom, 5)
                 
                 Button {
-                    
                 } label: {
                     HStack {
                         Image(systemName: "plus")
@@ -145,6 +140,7 @@ struct GOParkin9WidgetEntrySmallView: View {
                 .background(Color.blue)
                 .cornerRadius(10)
                 .shadow(color: Color.black.opacity(0.25), radius: 20, x: 0, y: 4)
+                .widgetURL(URL(string: AppLinks.addRecordUrl))
                 
                 Spacer()
                     .frame(height: 15)
@@ -217,9 +213,7 @@ struct GOParkin9WidgetEntryMediumView: View {
                     Spacer()
                     
                     VStack {
-                        Button {
-                            
-                        } label: {
+                        Link(destination: URL(string: AppLinks.viewCompassUrl)!) {
                             HStack {
                                 Image(systemName: "figure.walk")
                                     .resizable()
@@ -232,9 +226,9 @@ struct GOParkin9WidgetEntryMediumView: View {
                                     .fontWeight(.medium)
                                     .foregroundColor(.white)
                             }
-                            .padding(.vertical, 10)
                             .frame(maxWidth: .infinity)
                         }
+                        .padding(.vertical, 20)
                         .frame(width: UIScreen.main.bounds.width / 2.5)
                         .background(Color.blue)
                         .cornerRadius(10)
@@ -242,9 +236,7 @@ struct GOParkin9WidgetEntryMediumView: View {
                         
                         Spacer()
                         
-                        Button {
-                            
-                        } label: {
+                        Link(destination: URL(string: AppLinks.completeRecordUrl)!) {
                             HStack {
                                 Image(systemName: "car")
                                     .resizable()
@@ -257,9 +249,9 @@ struct GOParkin9WidgetEntryMediumView: View {
                                     .fontWeight(.medium)
                                     .foregroundColor(.white)
                             }
-                            .padding(.vertical, 10)
                             .frame(maxWidth: .infinity)
                         }
+                        .padding(.vertical, 20)
                         .frame(width: UIScreen.main.bounds.width / 2.5)
                         .background(Color.green)
                         .cornerRadius(10)
@@ -284,8 +276,6 @@ struct GOParkin9WidgetEntryMediumView: View {
                     .fontWeight(.medium)
                 
                 Spacer()
-                
-                
                     
                 Button {
                     
@@ -308,6 +298,7 @@ struct GOParkin9WidgetEntryMediumView: View {
                 .background(Color.blue)
                 .cornerRadius(15)
                 .shadow(color: Color.black.opacity(0.25), radius: 20, x: 0, y: 4)
+                .widgetURL(URL(string: AppLinks.addRecordUrl))
                 
             }
             .padding()

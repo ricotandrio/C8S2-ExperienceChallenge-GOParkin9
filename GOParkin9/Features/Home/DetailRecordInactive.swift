@@ -34,7 +34,6 @@ struct DetailRecordInactive: View {
             
             Button {
                 showAlertSaveLocation.toggle()
-                
             } label: {
                 HStack {
                     Image(systemName: "car")
@@ -72,6 +71,11 @@ struct DetailRecordInactive: View {
         .onChange(of: savedLocation) { newValue in
             if newValue != nil {
                 showingSheet = true
+            }
+        }
+        .onOpenURL { url in
+            if url == URL(string: AppLinks.addRecordUrl) {
+                showAlertSaveLocation = true
             }
         }
         
