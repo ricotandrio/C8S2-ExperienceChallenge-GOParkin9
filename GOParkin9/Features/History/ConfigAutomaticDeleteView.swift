@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ConfigAutomaticDeleteView: View {
-    @EnvironmentObject private var userSettingsVM: UserSettingsViewModel
+//    @EnvironmentObject private var userSettingsVM: UserSettingsViewModel
     
     var body: some View {
         List {
@@ -17,14 +17,14 @@ struct ConfigAutomaticDeleteView: View {
                     HStack {
                         Text("\(option) Days\(option == 5 ?  " (Default)" : "")")
                         Spacer()
-                        if userSettingsVM.daysBeforeAutomaticDelete == option {
-                            Image(systemName: "checkmark")
-                                .foregroundColor(.blue)
-                        }
+//                        if userSettingsVM.daysBeforeAutomaticDelete == option {
+//                            Image(systemName: "checkmark")
+//                                .foregroundColor(.blue)
+//                        }
                     }
                     .contentShape(Rectangle())
                     .onTapGesture {
-                        userSettingsVM.setDaysBeforeAutomaticDelete(to: option)
+//                        userSettingsVM.setDaysBeforeAutomaticDelete(to: option)
                     }
                 }
             }

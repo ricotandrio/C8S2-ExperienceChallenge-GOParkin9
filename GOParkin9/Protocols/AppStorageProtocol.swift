@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol UserSettingsProtocol {
+protocol AppStorageProtocol {
     func getDaysBeforeAutomaticDelete() -> Int
     func setDaysBeforeAutomaticDelete(to days: Int)
     

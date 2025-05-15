@@ -17,6 +17,8 @@ struct DetailRecordInactive: View {
     let locationManager = NavigationManager()
     @State private var savedLocation: CLLocationCoordinate2D?
     
+    @ObservedObject var viewModel: HomeViewModel
+    
     var body: some View {
         VStack(alignment: .center) {
             
@@ -55,7 +57,7 @@ struct DetailRecordInactive: View {
         }
         .sheet(isPresented: $showingSheet) {
             if let location = savedLocation {
-                ModalView(savedLocation: location)
+                ModalView(savedLocation: location, afterAction: viewModel.synchronize)
             }
         }
         .alertComponent(

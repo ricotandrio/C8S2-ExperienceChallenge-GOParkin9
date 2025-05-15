@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct WelcomeScreenView: View {
-    @EnvironmentObject private var userSettingsVM: UserSettingsViewModel
+    @Binding var isFirstLaunch: Bool
     
     var body: some View {
         ZStack {
@@ -49,7 +49,7 @@ struct WelcomeScreenView: View {
 
                 // Get Started Button
                 Button(action: {
-                    userSettingsVM.markAppAsLaunched()
+                    isFirstLaunch = false
                 }) {
                     Text("Get Started")
                         .font(.headline)
@@ -67,5 +67,9 @@ struct WelcomeScreenView: View {
 }
 
 #Preview {
-    WelcomeScreenView()
+    @Previewable @State var isFirstLaunch = true
+    
+    WelcomeScreenView(
+        isFirstLaunch: $isFirstLaunch
+    )
 }

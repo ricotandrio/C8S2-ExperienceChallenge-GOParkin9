@@ -139,14 +139,6 @@ final class ParkingRecordRepository: ParkingRecordRepositoryProtocol {
             print("Error fetching parking records: \(error)")
             return .failure(.queryFailed)
         }
-//        do {
-//            let parkingRecords = try context.fetch(fetchDescriptor)
-//            
-//            return .success(parkingRecords)
-//        } catch {
-//            print("Error fetching parking records: \(error)")
-//            return .failure(.queryFailed)
-//        }
     }
     
     func deleteExpiredHistories(expirationDate: Date) -> Result<Void, RepositoryError> {

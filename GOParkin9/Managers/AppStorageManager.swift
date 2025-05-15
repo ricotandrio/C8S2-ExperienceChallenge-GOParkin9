@@ -1,14 +1,14 @@
 //
-//  UserSettingsManager.swift
+//  AppStorageManager.swift
 //  GOParkin9
 //
-//  Created by Rico Tandrio on 16/04/25.
+//  Created by Rico Tandrio on 15/05/25.
 //
 
 import Foundation
 import SwiftUI
 
-class UserSettingsManager: UserSettingsProtocol {
+class AppStorageManager: AppStorageProtocol {
     @AppStorage(Keys.daysBeforeAutomaticDelete.id) private var daysBeforeAutomaticDelete: Int = 5
     @AppStorage(Keys.isFirstLaunch.id) private var isFirstLaunch: Bool = true
 

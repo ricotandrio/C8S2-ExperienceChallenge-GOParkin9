@@ -7,34 +7,42 @@
 
 import SwiftUI
 import SwiftData
+import WidgetKit
 
 @main
 struct GOParkin9App: App {
-
-    @StateObject private var userStartVM: UserStartViewModel = UserStartViewModel()
-    @StateObject private var userSettingsVM: UserSettingsViewModel = UserSettingsViewModel()
+    
+    @StateObject private var appStartVM: AppStartViewModel = AppStartViewModel()
     
     static let parkingRecordRepository: ParkingRecordRepositoryProtocol = ParkingRecordRepository()
-    
+
     var body: some Scene {
         WindowGroup {
-            if userStartVM.isSplashActive {
+            if appStartVM.isSplashActive {
                 SplashScreenView()
                     .onAppear {
-                        userStartVM.startSplashTimer()
+                        appStartVM.startSplashTimer()
                     }
             } else {
-                
                 ContentView()
-                    .modelContainer(userStartVM.sharedModelContainer)
-                    .fullScreenCover(isPresented: $userSettingsVM.isFirstLaunch) {
-                        WelcomeScreenView()
+                    .modelContainer(appStartVM.sharedModelContainer)
+                    .fullScreenCover(isPresented: $appStartVM.isFirstLaunch) {
+                        WelcomeScreenView(
+                            isFirstLaunch: $appStartVM.isFirstLaunch
+                        )
                     }
                     .onAppear() {
-                        GOParkin9App.parkingRecordRepository.setContext(userStartVM.sharedModelContainer.mainContext)
+                        GOParkin9App.parkingRecordRepository.setContext(appStartVM.sharedModelContainer.mainContext)
                     }
             }
         }
-        .environmentObject(userSettingsVM)
+        .onChange(of: appStartVM.scenePhase) { newPhase in
+            if newPhase == .active {
+                let defaults = UserDefaults(suiteName: AppLinks.appGroupId)
+                defaults?.set("Reset", forKey: "WidgetResetKey")
+
+                WidgetCenter.shared.reloadAllTimelines()
+            }
+        }
     }
 }

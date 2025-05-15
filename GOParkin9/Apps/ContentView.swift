@@ -8,18 +8,17 @@
 import SwiftUI
 
 struct ContentView: View {
-    @Environment(\.modelContext) var context
-
+    
     var body: some View {
         VStack {
             TabView {
-                HomeView()
+                HomeView(viewModel: HomeViewModel())
                    .tabItem {
                        Label("Menu", systemImage: "house")
                    }
 
                 HistoryView(
-                    historyVM: HistoryViewModel()
+                    viewModel: HistoryViewModel()
                 )
                    .tabItem {
                        Label("History", systemImage: "clock")

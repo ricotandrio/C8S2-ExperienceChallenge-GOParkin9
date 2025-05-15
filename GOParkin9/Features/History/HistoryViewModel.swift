@@ -32,8 +32,23 @@ class HistoryViewModel: ObservableObject {
     
     @Published var errorMessage: String?
     
-    init() {
+    @Published var daysBeforeAutomaticDelete: Int = 5 {
+        didSet {
+            appStorageManager.setDaysBeforeAutomaticDelete(to: daysBeforeAutomaticDelete)
+        }
+    }
+    
+    private var appStorageManager: AppStorageProtocol
+    
+    init(appStorageManager: AppStorageProtocol = AppStorageManager()) {
+        self.appStorageManager = appStorageManager
+        self.daysBeforeAutomaticDelete = appStorageManager.getDaysBeforeAutomaticDelete()
+        
         self.synchronize()
+    }
+    
+    func setDaysBeforeAutomaticDelete(_ days: Int) {
+        self.daysBeforeAutomaticDelete = days
     }
     
     func synchronize() {
@@ -94,6 +109,8 @@ class HistoryViewModel: ObservableObject {
             }
             selectedParkingRecords.removeAll()
             isSelecting.toggle()
+            
+            self.synchronize()
             
         case .failure(let error):
             print("Error fetching parking records: \(error)")

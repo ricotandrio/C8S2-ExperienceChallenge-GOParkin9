@@ -9,14 +9,14 @@ import SwiftUI
 import SwiftData
 
 struct DetailRecordActive: View {
-    @ObservedObject var detailRecordVM: DetailRecordViewModel
+    @ObservedObject var viewModel: HomeViewModel
     
     var body: some View {
         
         ParkingRecordImageView(
-            parkingRecordImage: detailRecordVM.activeParkingRecord!.images,
-            isPreviewOpen: $detailRecordVM.isPreviewOpen,
-            selectedImageIndex: $detailRecordVM.selectedImageIndex
+            parkingRecordImage: viewModel.activeParkingRecord?.images ?? [],
+            isPreviewOpen: $viewModel.isPreviewOpen,
+            selectedImageIndex: $viewModel.selectedImageIndex
         )
         
         Spacer()
@@ -39,10 +39,11 @@ struct DetailRecordActive: View {
                         
                     }
                     
-                    Text(detailRecordVM.activeParkingRecord!.createdAt, format: .dateTime.day().month().year())
+                    Text(viewModel.activeParkingRecord!.createdAt, format: .dateTime.day().month().year())
                         .font(.subheadline)
                         .fontWeight(.medium)
                 }
+                
                 VStack(alignment: .leading) {
                     HStack {
                         Image(systemName: "clock")
@@ -58,7 +59,7 @@ struct DetailRecordActive: View {
                         
                     }
                     
-                    Text(detailRecordVM.activeParkingRecord!.createdAt, format: .dateTime.hour().minute())
+                    Text(viewModel.activeParkingRecord!.createdAt, format: .dateTime.hour().minute())
                         .font(.subheadline)
                         .fontWeight(.medium)
                 }
@@ -84,7 +85,7 @@ struct DetailRecordActive: View {
                 
             }
             
-            Text("GOP 9, \(detailRecordVM.activeParkingRecord!.floor)")
+            Text("GOP 9, \(viewModel.activeParkingRecord!.floor)")
                 .font(.subheadline)
                 .fontWeight(.medium)
         }
@@ -94,7 +95,7 @@ struct DetailRecordActive: View {
         
         HStack(spacing: 16) {
             Button {
-                detailRecordVM.isCompassOpen.toggle()
+                viewModel.isActiveRecordCompassOpen.toggle()
             } label: {
                 HStack {
                     Image(systemName: "figure.walk")
@@ -115,7 +116,7 @@ struct DetailRecordActive: View {
             .frame(maxWidth: .infinity)
             
             Button {
-                detailRecordVM.isComplete.toggle()
+                viewModel.isCompleteAlert = true
             } label: {
                 HStack {
                     Image(systemName: "car")
@@ -136,7 +137,7 @@ struct DetailRecordActive: View {
             .frame(maxWidth: .infinity)
             .onOpenURL { url in
                 if url == URL(string: AppLinks.completeRecordUrl) {
-                    detailRecordVM.isComplete = true
+                    viewModel.isCompleteAlert = true
                 }
             }
         }

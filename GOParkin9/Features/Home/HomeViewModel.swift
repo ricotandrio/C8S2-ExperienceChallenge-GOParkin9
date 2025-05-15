@@ -1,23 +1,36 @@
 //
-//  DetailRecordViewModel.swift
+//  HomeViewModel.swift
 //  GOParkin9
 //
-//  Created by Rico Tandrio on 22/04/25.
+//  Created by Rico Tandrio on 15/05/25.
 //
 
 import Foundation
 
-class DetailRecordViewModel: ObservableObject {
+class HomeViewModel: ObservableObject {
+    @Published var isActiveRecordCompassOpen: Bool = false
+    @Published var isNavigationButtonCompassOpen: Bool = false
+    
+    @Published var selectedNavigation:Int = 0
+    
     @Published var selectedImageIndex = 0
     @Published var isPreviewOpen = false
-    @Published var isCompassOpen: Bool = false
     
-    @Published var isComplete: Bool = false
-    
+    @Published var isCompleteAlert: Bool = false
     @Published var activeParkingRecord: ParkingRecord?
     
-    init() {
-        self.synchronize()
+    let navigations: [NavigationButtonModel] = [
+        .init(id:1, name: "Entry Gate Basement 1", icon: "pedestrian.gate.open"),
+        .init(id:2, name: "Exit Gate Basement 1", icon: "pedestrian.gate.closed"),
+        .init(id:3, name: "Charging Station", icon: "bolt.car"),
+        .init(id:4, name: "Entry Gate Basement 2", icon: "pedestrian.gate.open"),
+        .init(id:5, name: "Exit Gate Basement 2", icon: "pedestrian.gate.closed"),
+    ]
+    
+    init() { }
+    
+    func setSelectedNavigation(to id: Int) {
+        self.selectedNavigation = id
     }
     
     func synchronize() {
@@ -42,11 +55,10 @@ class DetailRecordViewModel: ObservableObject {
             floor: record.floor,
             completedAt: Date.now
         ) {
-        case .success(let updatedEntry):
             
+        case .success(let updatedEntry):
             print("Parking record updated successfully: \(updatedEntry)")
         case .failure(let error):
-            
             print("Error updating parking record: \(error)")
         }
         

@@ -11,25 +11,19 @@ import SwiftData
 
 
 struct HistoryView: View {
-    @ObservedObject private var historyVM: HistoryViewModel
-    
-    @EnvironmentObject private var userSettingsVM: UserSettingsViewModel
-
-    init(historyVM: HistoryViewModel) {
-        self.historyVM = historyVM
-    }
+    @StateObject var viewModel: HistoryViewModel
     
     var body: some View {
         NavigationStack {
             List {
 
-                if historyVM.histories.isEmpty {
+                if viewModel.histories.isEmpty {
                     Text("No history yet")
                         .foregroundColor(.secondary)
                 }
                 
                 Group {
-                    if !historyVM.getAllPinnedHistories().isEmpty {
+                    if !viewModel.getAllPinnedHistories().isEmpty {
                         HStack {
                             Image(systemName: "pin")
                                 .resizable()
@@ -44,24 +38,24 @@ struct HistoryView: View {
                                 .opacity(0.6)
                         }
                         
-                        ForEach(historyVM.getAllPinnedHistories()) { entry in
+                        ForEach(viewModel.getAllPinnedHistories()) { entry in
                             HistoryCard(
                                 entry: entry,
-                                pinItem: { historyVM.pinItem(entry) },
+                                pinItem: { viewModel.pinItem(entry) },
                                 deleteItem: {
-                                    historyVM.selectedHistoryToBeDeleted = entry
-                                    historyVM.showAlertDeleteSingle.toggle()
+                                    viewModel.selectedHistoryToBeDeleted = entry
+                                    viewModel.showAlertDeleteSingle.toggle()
                                 },
-                                isSelecting: historyVM.isSelecting,
-                                isSelected: historyVM.selectedParkingRecords.contains(entry.id),
-                                toggleSelection: { historyVM.toggleSelection(entry) }
+                                isSelecting: viewModel.isSelecting,
+                                isSelected: viewModel.selectedParkingRecords.contains(entry.id),
+                                toggleSelection: { viewModel.toggleSelection(entry) }
                             )
                         }
                     }
                 }
                 
                 Group {
-                    if !historyVM.getAllUnpinnedHistories().isEmpty {
+                    if !viewModel.getAllUnpinnedHistories().isEmpty {
                         HStack {
                             Image(systemName: "clock.arrow.circlepath")
                                 .resizable()
@@ -76,17 +70,17 @@ struct HistoryView: View {
                                 .opacity(0.6)
                         }
                         
-                        ForEach(historyVM.getAllUnpinnedHistories(), id: \.id) { entry in
+                        ForEach(viewModel.getAllUnpinnedHistories(), id: \.id) { entry in
                             HistoryCard(
                                 entry: entry,
-                                pinItem: { historyVM.pinItem(entry) },
+                                pinItem: { viewModel.pinItem(entry) },
                                 deleteItem: {
-                                    historyVM.selectedHistoryToBeDeleted = entry
-                                    historyVM.showAlertDeleteSingle.toggle()
+                                    viewModel.selectedHistoryToBeDeleted = entry
+                                    viewModel.showAlertDeleteSingle.toggle()
                                 },
-                                isSelecting: historyVM.isSelecting,
-                                isSelected: historyVM.selectedParkingRecords.contains(entry.id),
-                                toggleSelection: { historyVM.toggleSelection(entry) }
+                                isSelecting: viewModel.isSelecting,
+                                isSelected: viewModel.selectedParkingRecords.contains(entry.id),
+                                toggleSelection: { viewModel.toggleSelection(entry) }
                             )
                         }
                         
@@ -100,44 +94,44 @@ struct HistoryView: View {
 
                         // Button for sort the history by date
                         Button {
-                            historyVM.isDescending.toggle()
+                            viewModel.isDescending.toggle()
                         } label: {
                             Text("Sort by Date")
-                            Text("\(historyVM.isDescending ? "Most Recent First" : "Oldest First")")
+                            Text("\(viewModel.isDescending ? "Most Recent First" : "Oldest First")")
                                 .font(.subheadline)
                             Image(systemName: "arrow.up.arrow.down")
                         }
                         
                         Button {
-                            historyVM.navigateToConfigAutomaticDelete.toggle()
+                            viewModel.navigateToConfigAutomaticDelete.toggle()
                         } label: {
                             Text("Delete Automatically")
-                            Text("History will be deleted after \(userSettingsVM.daysBeforeAutomaticDelete) days")
+                            Text("History will be deleted after \(viewModel.daysBeforeAutomaticDelete) days")
                                 .font(.subheadline)
                             Image(systemName: "clock.arrow.trianglehead.counterclockwise.rotate.90")
                         }
                         
                         // Button for cancel the selection
                         Button {
-                            if !historyVM.histories.isEmpty {
-                                historyVM.cancelSelection()
+                            if !viewModel.histories.isEmpty {
+                                viewModel.cancelSelection()
                             } else {
-                                historyVM.showAlertHistoryEmpty.toggle()
+                                viewModel.showAlertHistoryEmpty.toggle()
                             }
                         } label: {
-                            Text(historyVM.isSelecting ? "Cancel" : "Select")
-                            Text(historyVM.isSelecting ? "Cancel Selection" : "Select Multiple")
+                            Text(viewModel.isSelecting ? "Cancel" : "Select")
+                            Text(viewModel.isSelecting ? "Cancel Selection" : "Select Multiple")
                                 .font(.subheadline)
-                            Image(systemName: historyVM.isSelecting ? "checkmark.circle" : "checkmark.circle.fill")
+                            Image(systemName: viewModel.isSelecting ? "checkmark.circle" : "checkmark.circle.fill")
                         }
                         
                         // Button for delete the selected history only if the selection is active
-                        if historyVM.isSelecting && !historyVM.selectedParkingRecords.isEmpty {
+                        if viewModel.isSelecting && !viewModel.selectedParkingRecords.isEmpty {
                             Button {
-                                historyVM.showAlertDeleteSelection.toggle()
+                                viewModel.showAlertDeleteSelection.toggle()
                             } label: {
                                 Text("Delete Selected")
-                                Text("\(historyVM.selectedParkingRecords.count) selected")
+                                Text("\(viewModel.selectedParkingRecords.count) selected")
                                     .font(.subheadline)
                                 Image(systemName: "trash")
                             }
@@ -147,40 +141,40 @@ struct HistoryView: View {
                     }
                 }
             }
-            .navigationDestination(isPresented: $historyVM.navigateToConfigAutomaticDelete) {
+            .navigationDestination(isPresented: $viewModel.navigateToConfigAutomaticDelete) {
                 ConfigAutomaticDeleteView()
             }
         }
         .onAppear {
             // This responsible for delete the history after certain days
-            historyVM.automaticDeleteHistoryAfter(
-                userSettingsVM.daysBeforeAutomaticDelete
-            )
+//            historyVM.automaticDeleteHistoryAfter(
+//                userSettingsVM.daysBeforeAutomaticDelete
+//            )
             
             // This responsible for synchronize the history
-            historyVM.synchronize()
+            viewModel.synchronize()
         }
         .alertComponent(
-            isPresented: $historyVM.showAlertHistoryEmpty,
+            isPresented: $viewModel.showAlertHistoryEmpty,
             title: "There's no history yet",
             message: "Please complete a parking first.",
             confirmButtonText: "OK"
         )
         .alertComponent(
-            isPresented: $historyVM.showAlertDeleteSelection,
+            isPresented: $viewModel.showAlertDeleteSelection,
             title: "Delete All Selected Records?",
             message: "This action cannot be undone.",
-            confirmAction: historyVM.deleteSelection,
+            confirmAction: viewModel.deleteSelection,
             confirmButtonText: "Delete",
             confirmButtonRole: .destructive
         )
         .alertComponent(
-            isPresented: $historyVM.showAlertDeleteSingle,
+            isPresented: $viewModel.showAlertDeleteSingle,
             title: "Delete This Record?",
             message: "This action cannot be undone.",
             confirmAction: {
-                if let entry = historyVM.selectedHistoryToBeDeleted {
-                    historyVM.deleteItem(entry)
+                if let entry = viewModel.selectedHistoryToBeDeleted {
+                    viewModel.deleteItem(entry)
                 }
             },
             confirmButtonText: "Delete",

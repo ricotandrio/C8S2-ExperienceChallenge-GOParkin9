@@ -10,7 +10,6 @@ import CoreLocation
 import CoreLocationUI
 import SwiftData
 
-
 struct ModalView: View {
     @Environment(\.dismiss) var dismiss
     @State private var showingAlert = false
@@ -26,6 +25,8 @@ struct ModalView: View {
     
     @Environment(\.modelContext) var context
 
+    var afterAction: () -> Void
+    
     func addParkingRecord(latitude: Double, longitude: Double, images: [UIImage], floor:String) {
         let convertedImages = images.map { ParkingImage(image: $0) }
         
@@ -41,6 +42,7 @@ struct ModalView: View {
         do {
             try context.save()
             print("Record added successfully!")
+            afterAction()
         } catch {
             print("Failed to save record: \(error)")
         }
@@ -149,7 +151,6 @@ struct GridView: View {
     @Binding var images: [UIImage]
     var onSelectImage: (UIImage) -> Void
     @Binding var isImageFullscreen: Bool
-//    @Binding var selectedImage: UIImage?
     
     @State private var showingCamera = false
     @State private var newImage: UIImage?
@@ -165,7 +166,6 @@ struct GridView: View {
                     .cornerRadius(8)
                     .onTapGesture {
                         onSelectImage(images[img])
-//                        isImageFullscreen.toggle()
                     }
                     .overlay(
                         Button(action: {
