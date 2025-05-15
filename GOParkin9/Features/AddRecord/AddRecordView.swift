@@ -9,6 +9,7 @@ import SwiftUI
 import CoreLocation
 import CoreLocationUI
 import SwiftData
+import WidgetKit
 
 struct ModalView: View {
     @Environment(\.dismiss) var dismiss
@@ -43,6 +44,7 @@ struct ModalView: View {
             try context.save()
             print("Record added successfully!")
             afterAction()
+            WidgetCenter.shared.reloadAllTimelines()
         } catch {
             print("Failed to save record: \(error)")
         }

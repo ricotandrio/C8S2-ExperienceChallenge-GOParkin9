@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import WidgetKit
 
 class HomeViewModel: ObservableObject {
     @Published var isActiveRecordCompassOpen: Bool = false
@@ -63,5 +64,7 @@ class HomeViewModel: ObservableObject {
         }
         
         self.synchronize()
+        
+        WidgetCenter.shared.reloadTimelines(ofKind: "GOParkin9Widget")
     }
 }

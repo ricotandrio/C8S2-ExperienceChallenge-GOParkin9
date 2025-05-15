@@ -39,7 +39,7 @@ struct DetailRecordActive: View {
                         
                     }
                     
-                    Text(viewModel.activeParkingRecord!.createdAt, format: .dateTime.day().month().year())
+                    Text(viewModel.activeParkingRecord?.createdAt ?? Date(), format: .dateTime.day().month().year())
                         .font(.subheadline)
                         .fontWeight(.medium)
                 }
@@ -59,7 +59,7 @@ struct DetailRecordActive: View {
                         
                     }
                     
-                    Text(viewModel.activeParkingRecord!.createdAt, format: .dateTime.hour().minute())
+                    Text(viewModel.activeParkingRecord?.createdAt ?? Date(), format: .dateTime.hour().minute())
                         .font(.subheadline)
                         .fontWeight(.medium)
                 }
@@ -85,7 +85,7 @@ struct DetailRecordActive: View {
                 
             }
             
-            Text("GOP 9, \(viewModel.activeParkingRecord!.floor)")
+            Text("GOP 9, \(viewModel.activeParkingRecord?.floor)")
                 .font(.subheadline)
                 .fontWeight(.medium)
         }

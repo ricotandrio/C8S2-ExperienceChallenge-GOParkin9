@@ -41,6 +41,7 @@ struct NavigationListView: View {
                                     .cornerRadius(10)
                                     .frame(width: 60, height: 60)
 
+                                
                                 Text(navigation.name)
                                     .font(.caption)
                                     .fontWeight(.bold)

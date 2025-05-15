@@ -36,13 +36,5 @@ struct GOParkin9App: App {
                     }
             }
         }
-        .onChange(of: appStartVM.scenePhase) { newPhase in
-            if newPhase == .active {
-                let defaults = UserDefaults(suiteName: AppLinks.appGroupId)
-                defaults?.set("Reset", forKey: "WidgetResetKey")
-
-                WidgetCenter.shared.reloadAllTimelines()
-            }
-        }
     }
 }
