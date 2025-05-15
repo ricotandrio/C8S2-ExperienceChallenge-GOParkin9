@@ -9,6 +9,14 @@ import WidgetKit
 import SwiftUI
 import SwiftData
 
+// MARK: - Widget Timeline Entry Model
+struct SimpleEntry: TimelineEntry {
+    let date: Date
+    let configuration: ConfigurationAppIntent
+    let parkingRecord: ParkingRecord?
+}
+
+// MARK: - Widget Provider
 struct Provider: AppIntentTimelineProvider {
     let sampleParkingRecord: ParkingRecord = .init(
         latitude: 0,
@@ -41,17 +49,13 @@ struct Provider: AppIntentTimelineProvider {
             let parkingRecords = try modelContext.fetch(descriptor)
             let firstRecord = parkingRecords.first
 
-            let currentDate = Date()
-            for hourOffset in 0..<5 {
-                let entryDate = Calendar.current.date(byAdding: .hour, value: hourOffset, to: currentDate)!
-                let entry = SimpleEntry(date: entryDate, configuration: configuration, parkingRecord: firstRecord)
-                entries.append(entry)
-            }
+            let entry = SimpleEntry(date: Date(), configuration: configuration, parkingRecord: firstRecord)
+
+            entries.append(entry)
 
             return Timeline(entries: entries, policy: .atEnd)
 
         } catch {
-            // Fallback if model container fails
             let entry = SimpleEntry(date: Date(), configuration: configuration, parkingRecord: nil)
             return Timeline(entries: [entry], policy: .atEnd)
         }
@@ -59,12 +63,7 @@ struct Provider: AppIntentTimelineProvider {
 
 }
 
-struct SimpleEntry: TimelineEntry {
-    let date: Date
-    let configuration: ConfigurationAppIntent
-    let parkingRecord: ParkingRecord?
-}
-
+// MARK: - Widget Views for Small
 struct GOParkin9WidgetEntrySmallView: View {
     var entry: Provider.Entry
     
@@ -175,6 +174,7 @@ struct GOParkin9WidgetEntrySmallView: View {
     }
 }
 
+// MARK: - Widget Views for Medium
 struct GOParkin9WidgetEntryMediumView: View {
     var entry: Provider.Entry
     
@@ -190,7 +190,7 @@ struct GOParkin9WidgetEntryMediumView: View {
                         .clipped()
                         .overlay(Color.black.opacity(0.5))
                 } else {
-                    Image(uiImage: entry.parkingRecord!.images[0].getImage())
+                    Image(uiImage: entry.parkingRecord?.images[0].getImage() ?? UIImage())
                         .resizable()
                         .scaledToFill()
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -330,13 +330,14 @@ struct GOParkin9WidgetEntryMediumView: View {
     }
 }
 
-struct GOParkin9WidgetEntryCircularView: View {
+// MARK: - Widget Views for Inline at Lock Screen
+struct GOParkin9WidgetEntryInlineView: View {
     var entry: Provider.Entry
     
     var body: some View {
         if entry.parkingRecord != nil {
             HStack {
-                Text("GOP9 at \(entry.parkingRecord?.floor ?? "N/A")")
+                Text("[GOP9 at \(entry.parkingRecord?.floor ?? "N/A")]")
                     .font(.system(size: 16))
                     .fontWeight(.medium)
                     .foregroundColor(.secondary)
@@ -345,7 +346,7 @@ struct GOParkin9WidgetEntryCircularView: View {
             }
         } else {
             HStack {
-                Text("No Active Parking Yet.")
+                Text("[No Active Parking Yet.]")
                     .font(.system(size: 16))
                     .fontWeight(.medium)
                     .foregroundColor(.secondary)
@@ -356,6 +357,54 @@ struct GOParkin9WidgetEntryCircularView: View {
     }
 }
 
+// MARK: - Widget Views for Circular at Lock Screen
+struct GOParkin9WidgetEntryCircularView: View {
+    var entry: Provider.Entry
+    
+    var body: some View {
+        if entry.parkingRecord != nil {
+            Image(systemName: "parkingsign.radiowaves.left.and.right")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 50, height: 50)
+                .padding(.bottom, 2)
+                .padding()
+        } else {
+            Image(systemName: "parkingsign.radiowaves.left.and.right.slash")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 50, height: 50)
+                .padding(.bottom, 2)
+        }
+    }
+}
+
+// MARK: - Widget Views for Rectangular at Lock Screen
+struct GOParkin9WidgetRectangleView: View {
+    var entry: Provider.Entry
+
+    var body: some View {
+        if entry.parkingRecord != nil {
+            HStack {
+                Text("GOP9 at \(entry.parkingRecord?.floor ?? "N/A")")
+                    .font(.system(size: 18))
+                    .fontWeight(.bold)
+                    .multilineTextAlignment(.leading)
+                    .padding(.bottom, 5)
+            }
+        } else {
+            HStack {
+                Text("No Active Parking Yet")
+                    .font(.system(size: 18))
+                    .fontWeight(.bold)
+                    .multilineTextAlignment(.leading)
+                    .padding(.bottom, 5)
+            }
+        }
+    }
+}
+
+// MARK: - Widget Entry View
 struct GOParkin9WidgetEntryView : View {
     var entry: Provider.Entry
     @Environment(\.widgetFamily) var family
@@ -366,14 +415,17 @@ struct GOParkin9WidgetEntryView : View {
             GOParkin9WidgetEntrySmallView(entry: entry)
         case .systemMedium:
             GOParkin9WidgetEntryMediumView(entry: entry)
-        case .accessoryCircular:
-            GOParkin9WidgetEntryCircularView(entry: entry)
+        case .accessoryInline:
+            GOParkin9WidgetEntryInlineView(entry: entry)
+        case .accessoryRectangular:
+            GOParkin9WidgetRectangleView(entry: entry)
         default:
-            GOParkin9WidgetEntryMediumView(entry: entry)
+            GOParkin9WidgetEntryCircularView(entry: entry)
         }
     }
 }
 
+// MARK: - Widget Configuration
 struct GOParkin9Widget: Widget {
     let kind: String = "GOParkin9Widget"
 
@@ -386,6 +438,8 @@ struct GOParkin9Widget: Widget {
         .configurationDisplayName("GOParkin9 Widget")
         .description("Access your parking record quickly and easily.")
         .supportedFamilies([
+            .accessoryInline,
+            .accessoryCircular,
             .accessoryRectangular,
             .systemSmall,
             .systemMedium
@@ -393,6 +447,7 @@ struct GOParkin9Widget: Widget {
     }
 }
 
+// MARK: - Preview
 extension ConfigurationAppIntent {
     fileprivate static var smiley: ConfigurationAppIntent {
         let intent = ConfigurationAppIntent()
@@ -401,7 +456,7 @@ extension ConfigurationAppIntent {
     }
 }
 
-#Preview(as: .systemSmall) {
+#Preview(as: .accessoryRectangular) {
     GOParkin9Widget()
 } timeline: {
     SimpleEntry(
