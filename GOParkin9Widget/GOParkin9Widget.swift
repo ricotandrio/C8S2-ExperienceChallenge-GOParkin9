@@ -10,41 +10,66 @@ import SwiftUI
 import SwiftData
 
 struct Provider: AppIntentTimelineProvider {
+    let sampleParkingRecord: ParkingRecord = .init(
+        latitude: 0,
+        longitude: 0,
+        images: [],
+        floor: "Basement 2"
+    )
+    
     func placeholder(in context: Context) -> SimpleEntry {
-        SimpleEntry(date: Date(), configuration: ConfigurationAppIntent())
+        SimpleEntry(date: Date(), configuration: ConfigurationAppIntent(), parkingRecord: sampleParkingRecord)
     }
 
     func snapshot(for configuration: ConfigurationAppIntent, in context: Context) async -> SimpleEntry {
-        SimpleEntry(date: Date(), configuration: configuration)
+        SimpleEntry(date: Date(), configuration: configuration, parkingRecord: sampleParkingRecord)
     }
     
     func timeline(for configuration: ConfigurationAppIntent, in context: Context) async -> Timeline<SimpleEntry> {
         var entries: [SimpleEntry] = []
 
-        // Generate a timeline consisting of five entries an hour apart, starting from the current date.
-        let currentDate = Date()
-        for hourOffset in 0 ..< 5 {
-            let entryDate = Calendar.current.date(byAdding: .hour, value: hourOffset, to: currentDate)!
-            let entry = SimpleEntry(date: entryDate, configuration: configuration)
-            entries.append(entry)
-        }
+        do {
+            let modelContainer = try ModelContainer(for: ParkingRecord.self)
 
-        return Timeline(entries: entries, policy: .atEnd)
+            let modelContext = ModelContext(modelContainer)
+
+            let descriptor = FetchDescriptor<ParkingRecord>(
+                predicate: #Predicate { $0.isHistory == false },
+                sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
+            )
+
+            let parkingRecords = try modelContext.fetch(descriptor)
+            let firstRecord = parkingRecords.first
+
+            let currentDate = Date()
+            for hourOffset in 0..<5 {
+                let entryDate = Calendar.current.date(byAdding: .hour, value: hourOffset, to: currentDate)!
+                let entry = SimpleEntry(date: entryDate, configuration: configuration, parkingRecord: firstRecord)
+                entries.append(entry)
+            }
+
+            return Timeline(entries: entries, policy: .atEnd)
+
+        } catch {
+            // Fallback if model container fails
+            let entry = SimpleEntry(date: Date(), configuration: configuration, parkingRecord: nil)
+            return Timeline(entries: [entry], policy: .atEnd)
+        }
     }
+
 }
 
 struct SimpleEntry: TimelineEntry {
     let date: Date
     let configuration: ConfigurationAppIntent
+    let parkingRecord: ParkingRecord?
 }
 
 struct GOParkin9WidgetEntrySmallView: View {
     var entry: Provider.Entry
     
-    var parkingRecord: ParkingRecord?
-    
     var body: some View {
-        if parkingRecord != nil {
+        if entry.parkingRecord != nil {
             VStack(alignment: .leading) {
                 Spacer()
                     .frame(height: 20)
@@ -55,7 +80,7 @@ struct GOParkin9WidgetEntrySmallView: View {
                         .scaledToFit()
                         .frame(width: 12, height: 12)
                     
-                    Text("\(parkingRecord?.createdAt.formatted(date: .omitted, time: .shortened) ?? "N/A")")
+                    Text("\(entry.parkingRecord?.createdAt.formatted(date: .omitted, time: .shortened) ?? "N/A")")
                         .font(.system(size: 12))
                         .fontWeight(.medium)
                         .foregroundColor(.primary)
@@ -69,7 +94,7 @@ struct GOParkin9WidgetEntrySmallView: View {
                         .foregroundColor(.primary)
                         .fontWeight(.bold)
                     
-                    Text("\(parkingRecord?.floor ?? "N/A")")
+                    Text("\(entry.parkingRecord?.floor ?? "N/A")")
                         .font(.system(size: 12))
                         .fontWeight(.medium)
                         .foregroundColor(.secondary)
@@ -153,13 +178,11 @@ struct GOParkin9WidgetEntrySmallView: View {
 struct GOParkin9WidgetEntryMediumView: View {
     var entry: Provider.Entry
     
-    var parkingRecord: ParkingRecord?
-    
     var body: some View {
-        if parkingRecord != nil {
+        if entry.parkingRecord != nil {
             ZStack {
                 
-                if parkingRecord!.images.isEmpty {
+                if entry.parkingRecord!.images.isEmpty {
                     Image("Image")
                         .resizable()
                         .scaledToFill()
@@ -167,7 +190,7 @@ struct GOParkin9WidgetEntryMediumView: View {
                         .clipped()
                         .overlay(Color.black.opacity(0.5))
                 } else {
-                    Image(uiImage: parkingRecord!.images[0].getImage())
+                    Image(uiImage: entry.parkingRecord!.images[0].getImage())
                         .resizable()
                         .scaledToFill()
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -186,7 +209,7 @@ struct GOParkin9WidgetEntryMediumView: View {
                                 .foregroundColor(.white)
                                 .frame(width: 15, height: 15)
                             
-                            Text("\(parkingRecord?.createdAt.formatted(date: .omitted, time: .shortened) ?? "N/A")")
+                            Text("\(entry.parkingRecord?.createdAt.formatted(date: .omitted, time: .shortened) ?? "N/A")")
                                 .font(.system(size: 12))
                                 .foregroundColor(.white)
                                 .fontWeight(.medium)
@@ -200,7 +223,7 @@ struct GOParkin9WidgetEntryMediumView: View {
                                 .foregroundColor(.white)
                                 .fontWeight(.semibold)
                             
-                            Text("\(parkingRecord?.floor ?? "N/A")")
+                            Text("\(entry.parkingRecord?.floor ?? "N/A")")
                                 .font(.system(size: 12))
                                 .opacity(0.8)
                                 .fontWeight(.medium)
@@ -307,24 +330,46 @@ struct GOParkin9WidgetEntryMediumView: View {
     }
 }
 
+struct GOParkin9WidgetEntryCircularView: View {
+    var entry: Provider.Entry
+    
+    var body: some View {
+        if entry.parkingRecord != nil {
+            HStack {
+                Text("GOP9 at \(entry.parkingRecord?.floor ?? "N/A")")
+                    .font(.system(size: 16))
+                    .fontWeight(.medium)
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.leading)
+                    .padding(.bottom, 5)
+            }
+        } else {
+            HStack {
+                Text("No Active Parking Yet.")
+                    .font(.system(size: 16))
+                    .fontWeight(.medium)
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.leading)
+                    .padding(.bottom, 5)
+            }
+        }
+    }
+}
+
 struct GOParkin9WidgetEntryView : View {
     var entry: Provider.Entry
     @Environment(\.widgetFamily) var family
     
-    @Query(filter: #Predicate<ParkingRecord>{p in p.isHistory == false}) var parkingRecords: [ParkingRecord]
-
-    var firstParkingRecord: ParkingRecord? {
-        parkingRecords.first
-    }
-
     var body: some View {
         switch family {
         case .systemSmall:
-            GOParkin9WidgetEntrySmallView(entry: entry, parkingRecord: firstParkingRecord ?? nil)
+            GOParkin9WidgetEntrySmallView(entry: entry)
         case .systemMedium:
-            GOParkin9WidgetEntryMediumView(entry: entry, parkingRecord: firstParkingRecord ?? nil)
+            GOParkin9WidgetEntryMediumView(entry: entry)
+        case .accessoryCircular:
+            GOParkin9WidgetEntryCircularView(entry: entry)
         default:
-            GOParkin9WidgetEntryMediumView(entry: entry, parkingRecord: firstParkingRecord ?? nil)
+            GOParkin9WidgetEntryMediumView(entry: entry)
         }
     }
 }
@@ -336,12 +381,15 @@ struct GOParkin9Widget: Widget {
         AppIntentConfiguration(kind: kind, intent: ConfigurationAppIntent.self, provider: Provider()) { entry in
             GOParkin9WidgetEntryView(entry: entry)
                 .containerBackground(.fill.tertiary, for: .widget)
-                .modelContainer(for: [ParkingRecord.self])
         }
         .contentMarginsDisabled()
         .configurationDisplayName("GOParkin9 Widget")
         .description("Access your parking record quickly and easily.")
-        .supportedFamilies([.systemSmall, .systemMedium])
+        .supportedFamilies([
+            .accessoryRectangular,
+            .systemSmall,
+            .systemMedium
+        ])
     }
 }
 
@@ -353,8 +401,17 @@ extension ConfigurationAppIntent {
     }
 }
 
-#Preview(as: .systemMedium) {
+#Preview(as: .systemSmall) {
     GOParkin9Widget()
 } timeline: {
-    SimpleEntry(date: .now, configuration: .smiley)
+    SimpleEntry(
+        date: .now,
+        configuration: .smiley,
+        parkingRecord: .init(
+            latitude: 0,
+            longitude: 0,
+            images: [],
+            floor: "Basement 2"
+        )
+    )
 }
