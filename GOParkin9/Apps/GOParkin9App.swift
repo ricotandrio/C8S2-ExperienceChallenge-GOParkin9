@@ -33,6 +33,8 @@ struct GOParkin9App: App {
                     }
                     .onAppear() {
                         GOParkin9App.parkingRecordRepository.setContext(appStartVM.sharedModelContainer.mainContext)
+                        
+                        WidgetCenter.shared.reloadTimelines(ofKind: "GOParkin9Widget")
                     }
             }
         }

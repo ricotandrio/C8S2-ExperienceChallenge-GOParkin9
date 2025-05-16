@@ -190,12 +190,16 @@ struct GOParkin9WidgetEntryMediumView: View {
                         .clipped()
                         .overlay(Color.black.opacity(0.5))
                 } else {
-                    Image(uiImage: entry.parkingRecord?.images[0].getImage() ?? UIImage())
-                        .resizable()
-                        .scaledToFill()
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .clipped()
-                        .overlay(Color.black.opacity(0.5))
+                    if let originalImage = entry.parkingRecord?.images.first?.getImage(),
+                       let resizedImage = originalImage.resized(to: CGSize(width: 150, height: 150)) {
+                        
+                        Image(uiImage: resizedImage)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .clipped()
+                            .overlay(Color.black.opacity(0.5))
+                    }
                 }
                 
                 HStack(alignment: .center) {
