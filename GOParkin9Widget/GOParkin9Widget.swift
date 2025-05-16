@@ -337,7 +337,7 @@ struct GOParkin9WidgetEntryInlineView: View {
     var body: some View {
         if entry.parkingRecord != nil {
             HStack {
-                Text("[GOP9 at \(entry.parkingRecord?.floor ?? "N/A")]")
+                Text("GOP9 at \(entry.parkingRecord?.floor ?? "N/A")")
                     .font(.system(size: 16))
                     .fontWeight(.medium)
                     .foregroundColor(.secondary)
@@ -346,7 +346,7 @@ struct GOParkin9WidgetEntryInlineView: View {
             }
         } else {
             HStack {
-                Text("[No Active Parking Yet.]")
+                Text("No Active Parking Yet.")
                     .font(.system(size: 16))
                     .fontWeight(.medium)
                     .foregroundColor(.secondary)

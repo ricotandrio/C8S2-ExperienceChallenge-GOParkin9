@@ -142,14 +142,14 @@ struct HistoryView: View {
                 }
             }
             .navigationDestination(isPresented: $viewModel.navigateToConfigAutomaticDelete) {
-                ConfigAutomaticDeleteView()
+                ConfigAutomaticDeleteView(daysBeforeAutomaticDelete: $viewModel.daysBeforeAutomaticDelete)
             }
         }
         .onAppear {
             // This responsible for delete the history after certain days
-//            historyVM.automaticDeleteHistoryAfter(
-//                userSettingsVM.daysBeforeAutomaticDelete
-//            )
+            viewModel.automaticDeleteHistoryAfter(
+                viewModel.daysBeforeAutomaticDelete
+            )
             
             // This responsible for synchronize the history
             viewModel.synchronize()
